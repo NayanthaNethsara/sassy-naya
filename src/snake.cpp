@@ -1,49 +1,63 @@
 #include "snake.h"
+#include <iostream>
 
 void initSnake(Snake &snake, int startX, int startY, int gridSize)
 {
     snake.body.clear();
     snake.body.push_back({startX, startY, gridSize, gridSize}); // head
-    snake.dx = 0;
+    snake.gridSize = gridSize;                                  // set first
+    snake.dx = snake.gridSize;                                  // now dx gets correct value
     snake.dy = 0;
-    snake.gridSize = gridSize;
 }
+
+const int MAX_QUEUE_SIZE = 2;
 
 void handleInput(SDL_Event &event, Snake &snake)
 {
     if (event.type == SDL_KEYDOWN)
     {
+        int ndx = snake.dx;
+        int ndy = snake.dy;
+
         switch (event.key.keysym.sym)
         {
         case SDLK_UP:
-            if (snake.dy == 0)
-            {
-                snake.dx = 0;
-                snake.dy = -snake.gridSize;
-            }
+            ndx = 0;
+            ndy = -snake.gridSize;
             break;
         case SDLK_DOWN:
-            if (snake.dy == 0)
-            {
-                snake.dx = 0;
-                snake.dy = snake.gridSize;
-            }
+            ndx = 0;
+            ndy = snake.gridSize;
             break;
         case SDLK_LEFT:
-            if (snake.dx == 0)
-            {
-                snake.dx = -snake.gridSize;
-                snake.dy = 0;
-            }
+            ndx = -snake.gridSize;
+            ndy = 0;
             break;
         case SDLK_RIGHT:
-            if (snake.dx == 0)
-            {
-                snake.dx = snake.gridSize;
-                snake.dy = 0;
-            }
+            ndx = snake.gridSize;
+            ndy = 0;
             break;
+        default:
+            return;
         }
+
+        std::pair<int, int> lastDir = {snake.dx, snake.dy};
+        if (!snake.directionQueue.empty())
+        {
+            lastDir = snake.directionQueue.back();
+        }
+
+        // Ignore if opposite
+        if (ndx == -lastDir.first && ndy == -lastDir.second)
+        {
+            return;
+        }
+
+        if ((int)snake.directionQueue.size() < MAX_QUEUE_SIZE)
+        {
+            snake.directionQueue.push({ndx, ndy});
+        }
+        // else ignore input if queue full
     }
 }
 
@@ -55,25 +69,31 @@ void updateSnake(Snake &snake, Uint32 &lastMoveTime, Uint32 moveDelay,
     {
         lastMoveTime = currentTime;
 
-        // Move body segments from tail to head
-        for (int i = (int)snake.body.size() - 1; i > 0; --i)
+        // Apply next direction from queue if available
+        if (!snake.directionQueue.empty())
         {
-            snake.body[i] = snake.body[i - 1];
+            auto nextDir = snake.directionQueue.front();
+            snake.directionQueue.pop();
+            snake.dx = nextDir.first;
+            snake.dy = nextDir.second;
         }
 
-        // Move head
-        snake.body[0].x += snake.dx;
-        snake.body[0].y += snake.dy;
+        SDL_Rect newHead = snake.body.front();
+        newHead.x += snake.dx;
+        newHead.y += snake.dy;
 
-        // Keep head inside boundaries
-        if (snake.body[0].x < 0)
-            snake.body[0].x = 0;
-        if (snake.body[0].y < 0)
-            snake.body[0].y = 0;
-        if (snake.body[0].x > windowWidth - snake.gridSize)
-            snake.body[0].x = windowWidth - snake.gridSize;
-        if (snake.body[0].y > windowHeight - snake.gridSize)
-            snake.body[0].y = windowHeight - snake.gridSize;
+        // Keep inside bounds or wrap...
+
+        snake.body.insert(snake.body.begin(), newHead);
+
+        if (snake.pending_growth > 0)
+        {
+            snake.pending_growth--;
+        }
+        else
+        {
+            snake.body.pop_back();
+        }
     }
 }
 
@@ -88,7 +108,26 @@ void renderSnake(SDL_Renderer *renderer, const Snake &snake)
 
 void growSnake(Snake &snake)
 {
-    // Add a new segment at the tail’s position (duplicates last segment)
-    SDL_Rect tail = snake.body.back();
-    snake.body.push_back(tail);
+    snake.pending_growth++;
+}
+
+// Returns true if snake head collides with its body
+bool checkSelfCollision(const Snake &snake)
+{
+    const SDL_Rect &head = snake.body[0];
+
+    for (size_t i = 0; i < snake.body.size(); ++i)
+    {
+        std::cout << "Segment " << i << ": ("
+                  << snake.body[i].x << ", " << snake.body[i].y << ")\n";
+    }
+
+    for (size_t i = 1; i < snake.body.size(); ++i)
+    {
+        if (head.x == snake.body[i].x && head.y == snake.body[i].y)
+        {
+            return true;
+        }
+    }
+    return false;
 }
