@@ -1,20 +1,12 @@
-# Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++17 -I/opt/homebrew/include
-
-# Linker flags
+CXXFLAGS = -std=c++17 -I/opt/homebrew/include -Iinclude
 LDFLAGS = -L/opt/homebrew/lib -lSDL2
 
-# Source files
-SRC = main.cpp
-
-# Output executable
+SRC = src/main.cpp src/snake.cpp src/food.cpp
 OUT = app
 
-# Default target
 all:
 	$(CXX) $(SRC) $(CXXFLAGS) $(LDFLAGS) -o $(OUT)
 
-# Clean build artifacts
 clean:
 	rm -f $(OUT)
