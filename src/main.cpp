@@ -81,6 +81,12 @@ int main()
             growSnake(snake);
         }
 
+        if (checkSelfCollision(snake))
+        {
+            std::cout << "Game Over! You collided with yourself.\n";
+            running = false; // Stop game loop on collision
+        }
+
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 

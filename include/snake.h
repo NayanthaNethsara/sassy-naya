@@ -7,9 +7,9 @@
 struct Snake
 {
     std::vector<SDL_Rect> body;
-    int dx;
-    int dy;
+    int dx, dy;
     int gridSize;
+    int pending_growth = 0; // how many segments to grow
 };
 
 void initSnake(Snake &snake, int startX, int startY, int gridSize);
@@ -18,5 +18,6 @@ void updateSnake(Snake &snake, Uint32 &lastMoveTime, Uint32 moveDelay,
                  int windowWidth, int windowHeight);
 void renderSnake(SDL_Renderer *renderer, const Snake &snake);
 void growSnake(Snake &snake);
+bool checkSelfCollision(const Snake &snake);
 
 #endif // SNAKE_H

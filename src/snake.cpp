@@ -1,4 +1,5 @@
 #include "snake.h"
+#include <iostream>
 
 void initSnake(Snake &snake, int startX, int startY, int gridSize)
 {
@@ -55,25 +56,33 @@ void updateSnake(Snake &snake, Uint32 &lastMoveTime, Uint32 moveDelay,
     {
         lastMoveTime = currentTime;
 
-        // Move body segments from tail to head
-        for (int i = (int)snake.body.size() - 1; i > 0; --i)
+        SDL_Rect newHead = snake.body.front();
+        newHead.x += snake.dx;
+        newHead.y += snake.dy;
+
+        // Keep inside window bounds (or wrap)
+        if (newHead.x < 0)
+            newHead.x = 0;
+        if (newHead.y < 0)
+            newHead.y = 0;
+        if (newHead.x > windowWidth - snake.gridSize)
+            newHead.x = windowWidth - snake.gridSize;
+        if (newHead.y > windowHeight - snake.gridSize)
+            newHead.y = windowHeight - snake.gridSize;
+
+        // Insert new head at front
+        snake.body.insert(snake.body.begin(), newHead);
+
+        if (snake.pending_growth > 0)
         {
-            snake.body[i] = snake.body[i - 1];
+            // Don’t remove tail — snake grows
+            snake.pending_growth--;
         }
-
-        // Move head
-        snake.body[0].x += snake.dx;
-        snake.body[0].y += snake.dy;
-
-        // Keep head inside boundaries
-        if (snake.body[0].x < 0)
-            snake.body[0].x = 0;
-        if (snake.body[0].y < 0)
-            snake.body[0].y = 0;
-        if (snake.body[0].x > windowWidth - snake.gridSize)
-            snake.body[0].x = windowWidth - snake.gridSize;
-        if (snake.body[0].y > windowHeight - snake.gridSize)
-            snake.body[0].y = windowHeight - snake.gridSize;
+        else
+        {
+            // Remove tail to keep length constant
+            snake.body.pop_back();
+        }
     }
 }
 
@@ -88,7 +97,32 @@ void renderSnake(SDL_Renderer *renderer, const Snake &snake)
 
 void growSnake(Snake &snake)
 {
-    // Add a new segment at the tail’s position (duplicates last segment)
-    SDL_Rect tail = snake.body.back();
-    snake.body.push_back(tail);
+    snake.pending_growth++;
+}
+
+// Returns true if snake head collides with its body
+bool checkSelfCollision(const Snake &snake)
+{
+    const SDL_Rect &head = snake.body[0];
+
+    std::cout << "Checking self-collision for snake head at ("
+              << head.x << ", " << head.y << ")\n";
+
+    // console logging for debugging
+    std::cout << "Snake body size: " << snake.body.size() << "\n";
+    std::cout << "Snake body segments:\n";
+    for (size_t i = 0; i < snake.body.size(); ++i)
+    {
+        std::cout << "Segment " << i << ": ("
+                  << snake.body[i].x << ", " << snake.body[i].y << ")\n";
+    }
+
+    for (size_t i = 1; i < snake.body.size(); ++i)
+    {
+        if (head.x == snake.body[i].x && head.y == snake.body[i].y)
+        {
+            return true;
+        }
+    }
+    return false;
 }
