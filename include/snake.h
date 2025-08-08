@@ -3,13 +3,15 @@
 
 #include <SDL2/SDL.h>
 #include <vector>
+#include <queue>
 
 struct Snake
 {
     std::vector<SDL_Rect> body;
-    int dx, dy;
+    int dx, dy; // current direction
     int gridSize;
-    int pending_growth = 0; // how many segments to grow
+    int pending_growth = 0;
+    std::queue<std::pair<int, int>> directionQueue;
 };
 
 void initSnake(Snake &snake, int startX, int startY, int gridSize);
