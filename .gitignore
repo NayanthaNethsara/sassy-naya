@@ -1,0 +1,17 @@
+# Build folders
+/build/
+/bin/
+/obj/
+
+# IDE files (VSCode)
+/.vscode/
+/.idea/
+
+# Mac OS files
+.DS_Store
+
+# CMake generated files (if used)
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
