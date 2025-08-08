@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
                 quit = true;
         }
 
-        SDL_SetRenderDrawColor(renderer, 0, 128, 255, 255); // Blue color
+        SDL_SetRenderDrawColor(renderer, 0, 20, 67, 23); // Blue color
         SDL_RenderClear(renderer);
         SDL_RenderPresent(renderer);
     }
