@@ -3,6 +3,11 @@
 /bin/
 /obj/
 
+# Build artifacts
+app
+*.o
+*.exe
+
 # IDE files (VSCode)
 /.vscode/
 /.idea/
@@ -14,4 +19,5 @@
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
-Makefile
+
+
