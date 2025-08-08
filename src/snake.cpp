@@ -8,6 +8,7 @@ void initSnake(Snake &snake, int startX, int startY, int gridSize)
     snake.gridSize = gridSize;                                  // set first
     snake.dx = snake.gridSize;                                  // now dx gets correct value
     snake.dy = 0;
+    snake.pending_growth = 10;
 }
 
 const int MAX_QUEUE_SIZE = 2;
