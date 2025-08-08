@@ -73,12 +73,12 @@ int main()
             handleInput(event, snake);
         }
 
-        updateSnake(snake, lastMoveTime, MOVE_DELAY, WINDOW_WIDTH, WINDOW_HEIGHT, GRID_SIZE);
+        updateSnake(snake, lastMoveTime, MOVE_DELAY, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-        if (checkFoodEaten(snake.head, food))
+        if (checkFoodEaten(snake.body[0], food))
         {
             placeFood(food, WINDOW_WIDTH, WINDOW_HEIGHT, GRID_SIZE);
-            // TODO: grow snake here
+            growSnake(snake);
         }
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
