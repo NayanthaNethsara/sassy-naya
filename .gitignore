@@ -1,0 +1,23 @@
+# Build folders
+/build/
+/bin/
+/obj/
+
+# Build artifacts
+app
+*.o
+*.exe
+
+# IDE files (VSCode)
+/.vscode/
+/.idea/
+
+# Mac OS files
+.DS_Store
+
+# CMake generated files (if used)
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+
